@@ -1,0 +1,198 @@
+---
+title: "R tutorial"
+author: "곽진슬, 서승민"
+date: "2019년 4월 17일"
+output: html_document
+---
+#**목차**
+####1. R 설치 및 인터페이스 설명
+####2. 데이터 불러오기 
+####3. 데이터 구조 탐색 
+####4. 데이터 다루기
+####5. 데이터 내보내기
+####6. 구글에서 도움 받는 방법
+
+***
+
+##[R 설치](http://www.r-project.org)
+![](image1.png)
+
+***
+
+##[R Studio 설치](http://www.rstudio.com/)
+![](image2.png)
+
+***
+
+##R interface 설명  
+![](image3.png)
+
+####1. 코드 작성하는 곳(스크립트)  
+####2. 코드 실행 결과를 띄워줌(콘솔)  
+####3. R에 어떤 데이터를 불러왔는지  
+####4. 데이터 시각화 결과  
+#####* Ctrl + Shift + N을 누르면 새 스크립트 생성됨
+
+***
+
+##**데이터 불러오기**
+###1. CSV
+```{r eval = FALSE}
+# X
+data <- read.csv('C:\Users\sseo\Documents\git_project\R-tutorial\text.csv')
+
+# O
+data <- read.csv('C:\\Users\\sseo\\Documents\\git_project\\R-tutorial\\text.csv')
+```
+###2. xlsx
+```{r eval = FALSE}
+#패키지 설치 및 불러오기
+install.packages('XLConnect')
+library(XLConnect)
+
+#함수 작성
+read.xls <- function(filename, sheetnumber=1, sheetname=NULL, forceConversion=TRUE, startCol=0,  stringsAsFactors=TRUE) {
+  wb <- loadWorkbook(filename)
+  if (is.null(sheetname)) sheetname = getSheets(wb)[sheetnumber]
+  df <- readWorksheet(wb, sheet=sheetname, forceConversion=forceConversion, startCol=startCol)
+  if (stringsAsFactors) {
+    ischar <- sapply(df, class) == "character"
+    for (i in 1:length(df)) {
+      if (ischar[i]) df[,i] <- factor(df[,i])
+    }
+  }
+  df
+}
+
+#데이터 불러오기
+data <- read.xls('C:\\Users\\sseo\\Documents\\git_project\\R-tutorial\\text.xlsx')
+```
+
+***
+
+##**데이터 구조 탐색**
+###1. str()
+```{r}
+str(iris)
+```
+###2. summary()
+```{r}
+summary(iris)
+```
+
+***
+
+##**데이터 다루기**
+####1. 데이터프레임 부분 추출 및 조작
+ 'subset' 은 원하는 조건의 행을 추출
+```{r}
+subset(iris, subset = Sepal.Length > 7)
+```
+
+```{r echo=FALSE}
+iris <- iris[sample(1:nrow(iris), 15),]
+```
+ 'select' 는 열 추출
+```{r}
+subset(iris, select=Sepal.Length)
+```
+
+####2. 데이터프레임 분리하기
+```{r}
+split(iris, iris$Species)
+```
+
+####3. 데이터프레임 통합하기
+```{r echo=FALSE}
+cust_id <- c("c01","c02","c03","c04")
+last_name <- c("Kim", "Lee", "Choi", "Park")
+cust_mart_1 <- data.frame(cust_id, last_name)
+
+cust_mart_2 <- data.frame(cust_id = c("c05", "c06", "c07"), 
+                          last_name = c("Bae", "Kim", "Lim"))
+```
+예제로 사용할 데이터 생성
+```{r echo=FALSE}
+cust_mart_1
+cust_mart_2
+```
+행 결합(row bind) : 결합하려는 데이터의 열 개수, 속성, 이름이 같아야함
+```{r}
+rbind(cust_mart_1, cust_mart_2)
+```
+열 결합(column bind) : 행 개수가 같아야함
+```{r echo=FALSE}
+cust_mart_5 <- data.frame(age = c(20, 25, 19, 40, 32, 39, 28),
+                          income = c(2500, 2700, 0, 7000, 3400, 3600, 2900))
+cust_mart_12 <- rbind(cust_mart_1, cust_mart_2)
+```
+
+```{r echo=FALSE}
+cust_mart_5
+cust_mart_12
+```
+
+```{r}
+cbind(cust_mart_12, cust_mart_5)
+```
+
+두 데이터프레임의 공통 열 기준으로 통합함
+```{r}
+merge(cust_mart_1, cust_mart_2)
+```
+
+![](image4.png)
+
+merge() : inner join
+```{r}
+merge(cust_mart_1, cust_mart_2, by ='cust_id')
+```
+merge() : outer join
+```{r}
+merge(cust_mart_1, cust_mart_2, by ='cust_id', all=TRUE)
+```
+merge() : left outer join
+```{r}
+merge(cust_mart_1, cust_mart_2, by ='cust_id', all.x=TRUE)
+```
+merge() : right outer join
+```{r}
+merge(cust_mart_1, cust_mart_2, by ='cust_id', all.y=TRUE)
+```
+*몇 개의 열을 기준으로 merge하던 상관없지만, 3개 이상의 데이터 셋을 통합하려하면 error 발생
+
+####4. 데이터프레임 정렬하기
+```{r}
+iris[order(iris$Sepal.Length, decreasing = T),]
+```
+
+***
+
+##**데이터 내보내기**
+csv 형식으로 내보내는게 가장 속도 빠르고 오류 발생 가능성이 적음
+```{r eval=FALSE}
+write.csv('C:\\Users\\sseo\\Documents\\git_project\\R-tutorial\\text_complete.csv')
+```
+
+***
+
+##**구글에서 도움 받는 방법**
+'r + 궁금한 내용' 으로 검색하면 거의 다 나옴
+
+![](image5.png)
+
+***
+
+유명한 코딩 사이트(웬만한 답은 여기 다 나옴)  
+[stackoverflow](https://stackoverflow.com/)  
+
+***
+
+그 외 참고 자료(1은 간단하고, 2는 자세함)  
+[1.R for beginner](https://cran.r-project.org/doc/contrib/Paradis-rdebuts_en.pdf)  
+[2.An introduction to R](https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf)  
+
+
+
+
+
